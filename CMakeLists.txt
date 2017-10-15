@@ -842,6 +842,7 @@ add_subdirectory(lib/Support)
 add_subdirectory(lib/TableGen)
 
 add_subdirectory(utils/TableGen)
+add_subdirectory(nvmtests)
 
 # Force target to be built as soon as possible. Clang modules builds depend
 # header-wise on it as they ship all headers from the umbrella folders. Building
