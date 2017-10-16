@@ -376,6 +376,12 @@ void initializeWinEHPreparePass(PassRegistry&);
 void initializeWriteBitcodePassPass(PassRegistry&);
 void initializeWriteThinLTOBitcodePass(PassRegistry&);
 void initializeXRayInstrumentationPass(PassRegistry&);
+
+// NVM
+void initializeExpandAllocasPass(PassRegistry &);
+void initializeStripTlsPass(PassRegistry &);
+void initializeSandboxIndirectCallsPass(PassRegistry &);
+void initializeSandboxMemoryAccessesPass(PassRegistry &);
 }
 
 #endif

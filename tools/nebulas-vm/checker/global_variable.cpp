@@ -15,26 +15,17 @@
 // You should have received a copy of the GNU General Public License
 // along with the go-nebulas library.  If not, see
 // <http://www.gnu.org/licenses/>.
+//
+#include "llvm/IR/Module.h"
 
-#pragma once
+using namespace llvm;
+namespace nebulas {
 
-#ifdef _cplusplus
-extern "C" {
-#endif
-
-typedef enum {
-  code_succ = 0,
-  code_invalid_assembly_file,
-  code_invalid_priviliege,
-  code_invalid_with_global_var
-} nebulas_code_t;
-
-// TODO Define all needed apis that communicate with the block chain
-
-nebulas_code_t check_assembly(const char *filePath, const char *signature);
-
-nebulas_code_t check_priviliege(const char *signature);
-
-#ifdef _cplusplus
+bool check_if_contains_global_variable(Module *module) {
+  for (Module::global_iterator GV = module->global_begin();
+       GV != module->global_end(); ++GV) {
+    return false;
+  }
+  return true;
 }
-#endif
+} // namespace nebulas

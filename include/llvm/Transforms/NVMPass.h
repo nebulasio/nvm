@@ -17,24 +17,12 @@
 // <http://www.gnu.org/licenses/>.
 
 #pragma once
+namespace llvm {
 
-#ifdef _cplusplus
-extern "C" {
-#endif
+class ModulePass;
 
-typedef enum {
-  code_succ = 0,
-  code_invalid_assembly_file,
-  code_invalid_priviliege,
-  code_invalid_with_global_var
-} nebulas_code_t;
-
-// TODO Define all needed apis that communicate with the block chain
-
-nebulas_code_t check_assembly(const char *filePath, const char *signature);
-
-nebulas_code_t check_priviliege(const char *signature);
-
-#ifdef _cplusplus
-}
-#endif
+ModulePass *createExpandAllocasPass();
+ModulePass *createSandboxIndirectCallsPass();
+ModulePass *createSandboxMemoryAccessesPass();
+ModulePass *createStripTlsPass();
+} // namespace llvm

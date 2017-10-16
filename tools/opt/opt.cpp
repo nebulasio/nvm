@@ -405,6 +405,10 @@ int main(int argc, char **argv) {
   initializeCountingFunctionInserterPass(Registry);
   initializeUnreachableBlockElimLegacyPassPass(Registry);
   initializeExpandReductionsPass(Registry);
+  initializeExpandAllocasPass(Registry);
+  initializeStripTlsPass(Registry);
+  initializeSandboxIndirectCallsPass(Registry);
+  initializeSandboxMemoryAccessesPass(Registry);
 
 #ifdef LINK_POLLY_INTO_TOOLS
   polly::initializePollyPasses(Registry);

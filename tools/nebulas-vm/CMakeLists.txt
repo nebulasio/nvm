@@ -22,11 +22,13 @@ set(LLVM_LINK_COMPONENTS
   AsmParser
   MCJIT
   ExecutionEngine
+  NVMPass
   )
 
 
 add_llvm_tool(nebulas-vm
   engine.cpp
   nebulas_vm.cpp
+  checker/global_variable.cpp
   runtime/nebulas.cpp
   )

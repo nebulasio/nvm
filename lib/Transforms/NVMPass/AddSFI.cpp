@@ -4,8 +4,8 @@
 // #include "llvm/IR/Intrinsics.h"
 #include "llvm/IR/Module.h"
 #include "llvm/Pass.h"
-// #include "llvm/Support/raw_ostream.h"
-#include "llvm/Transforms/NaCl.h"
+#include "llvm/Support/raw_ostream.h"
+#include "llvm/Transforms/NVMPass.h"
 
 using namespace llvm;
 
@@ -37,8 +37,8 @@ static void expandAllocas(Function *Func, Type *IntPtrType, Value *StackPtr) {
   BasicBlock *EntryBB = &Func->getEntryBlock();
   unsigned FrameOffset = 0;
   for (BasicBlock::iterator Iter = EntryBB->begin(), E = EntryBB->end();
-       Iter != E;) {
-    Instruction *Inst = Iter++;
+       Iter != E; Iter++) {
+    Instruction *Inst = &(*Iter);
     if (AllocaInst *Alloca = dyn_cast<AllocaInst>(Inst)) {
       // XXX: error reporting
       assert(Alloca->getType() == I8Ptr);
@@ -92,7 +92,7 @@ bool ExpandAllocas::runOnModule(Module &M) {
       ConstantInt::get(IntPtrType, InitialStackPtr), "__sfi_stack");
 
   for (Module::iterator Func = M.begin(), E = M.end(); Func != E; ++Func) {
-    expandAllocas(Func, IntPtrType, StackPtr);
+    expandAllocas(&(*Func), IntPtrType, StackPtr);
   }
   return true;
 }

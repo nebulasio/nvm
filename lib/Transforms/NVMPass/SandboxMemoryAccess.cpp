@@ -17,7 +17,7 @@
 #include "llvm/IR/Module.h"
 #include "llvm/Pass.h"
 // #include "llvm/Support/raw_ostream.h"
-#include "llvm/Transforms/NaCl.h"
+#include "llvm/Transforms/NVMPass.h"
 
 using namespace llvm;
 
@@ -95,14 +95,14 @@ void SandboxMemoryAccesses::convertFunc(Function *Func) {
     for (BasicBlock::iterator Inst = BB->begin(), E = BB->end(); Inst != E;
          ++Inst) {
       if (isa<LoadInst>(Inst)) {
-        sandboxOperand(Inst, 0);
+        sandboxOperand(&(*Inst), 0);
       } else if (isa<StoreInst>(Inst)) {
-        sandboxOperand(Inst, 1);
+        sandboxOperand(&(*Inst), 1);
       } else if (isa<MemCpyInst>(Inst) || isa<MemMoveInst>(Inst)) {
-        sandboxOperand(Inst, 0);
-        sandboxOperand(Inst, 1);
+        sandboxOperand(&(*Inst), 0);
+        sandboxOperand(&(*Inst), 1);
       } else if (isa<MemSetInst>(Inst)) {
-        sandboxOperand(Inst, 0);
+        sandboxOperand(&(*Inst), 0);
       }
     }
   }
@@ -112,7 +112,7 @@ bool SandboxMemoryAccesses::runOnModule(Module &M) {
   Type *I64 = Type::getInt64Ty(M.getContext());
   MemBaseVar = M.getOrInsertGlobal("__sfi_memory_base", I64);
   for (Module::iterator Func = M.begin(), E = M.end(); Func != E; ++Func) {
-    convertFunc(Func);
+    convertFunc(&(*Func));
   }
   return true;
 }

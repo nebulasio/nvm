@@ -18,7 +18,7 @@
 //
 
 #include "engine.h"
-
+#include "llvm/Transforms/NVMPass.h"
 #include <llvm/ExecutionEngine/ExecutionEngine.h>
 #include <llvm/ExecutionEngine/GenericValue.h>
 #include <llvm/ExecutionEngine/SectionMemoryManager.h>
@@ -55,25 +55,25 @@ Engine *CreateEngine(const char *irPath) {
       parseIRFile(StringRef(irPath), err, *context);
   Module *module = pModule.get();
   if (module == nullptr) {
-    LogError(err.getMessage().data());
+    errs() << err.getMessage().data();
+
     delete context;
     return NULL;
   }
 
   // Create PassManager.
   legacy::PassManager *passMgr = new legacy::PassManager();
+  passMgr->add(createExpandAllocasPass());
+  passMgr->add(createSandboxIndirectCallsPass());
+  passMgr->add(createSandboxMemoryAccessesPass());
+  passMgr->add(createStripTlsPass());
   passMgr->add(createConstantPropagationPass());
   passMgr->add(createInstructionCombiningPass());
   passMgr->add(createPromoteMemoryToRegisterPass());
   passMgr->add(createCFGSimplificationPass());
   passMgr->add(createDeadCodeEliminationPass());
   passMgr->add(createGVNPass());
-  if (!passMgr->run(*module)) {
-    LogError("running pass failed.");
-    delete passMgr;
-    delete context;
-    return NULL;
-  }
+  passMgr->run(*module);
 
   // Create EngineBuilder.
   std::string errMsg;
@@ -153,12 +153,6 @@ int RunFunction(Engine *e, const char *funcName, size_t len,
     argData.PointerVal = (PointerTy)data;
     args.push_back(argData);
   }
-  // argLen.IntVal = APInt(sizeof(size_t) * 8, len);
-  // args.push_back(argLen);
-
-  // GenericValue argData;
-  // argData.PointerVal = (PointerTy)data;
-  // args.push_back(argData);
   engine->runFunction(func, args);
 
   return 0;
