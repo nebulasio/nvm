@@ -9,6 +9,8 @@
 
 using namespace llvm;
 
+// #define _ENABLE_DEBUG_LOG true
+
 namespace {
 // This is a ModulePass so that it can add global variables.
 class ExpandAllocas : public ModulePass {
@@ -31,17 +33,26 @@ static void expandAllocas(Function *Func, Type *IntPtrType, Value *StackPtr) {
   if (Func->empty())
     return;
 
-  Type *I8Ptr = Type::getInt8PtrTy(Func->getContext());
   Instruction *FrameTop = NULL;
 
   BasicBlock *EntryBB = &Func->getEntryBlock();
+
+#ifdef _ENABLE_DEBUG_LOG
+  errs() << "EntryBB:";
+  EntryBB->dump();
+  errs() << "end EntryBB.\n";
+#endif
+
   unsigned FrameOffset = 0;
   for (BasicBlock::iterator Iter = EntryBB->begin(), E = EntryBB->end();
-       Iter != E; Iter++) {
-    Instruction *Inst = &(*Iter);
-    if (AllocaInst *Alloca = dyn_cast<AllocaInst>(Inst)) {
-      // XXX: error reporting
-      assert(Alloca->getType() == I8Ptr);
+       Iter != E;) {
+#ifdef _ENABLE_DEBUG_LOG
+    errs() << "EntryBB->Iterator:";
+    Iter->dump();
+    errs() << "end EntryBB->Iterator.\n";
+#endif
+
+    if (AllocaInst *Alloca = dyn_cast<AllocaInst>(&*Iter)) {
       // XXX: error reporting
       ConstantInt *CI = cast<ConstantInt>(Alloca->getArraySize());
       // TODO: handle alignment
@@ -57,7 +68,9 @@ static void expandAllocas(Function *Func, Type *IntPtrType, Value *StackPtr) {
       Var = new IntToPtrInst(Var, Alloca->getType(), "", Alloca);
       Var->takeName(Alloca);
       Alloca->replaceAllUsesWith(Var);
-      Alloca->eraseFromParent();
+      Iter = Alloca->eraseFromParent();
+    } else {
+      ++Iter;
     }
   }
   if (FrameTop) {
@@ -94,6 +107,13 @@ bool ExpandAllocas::runOnModule(Module &M) {
   for (Module::iterator Func = M.begin(), E = M.end(); Func != E; ++Func) {
     expandAllocas(&(*Func), IntPtrType, StackPtr);
   }
+
+#ifdef _ENABLE_DEBUG_LOG
+  errs() << "After ExpandAllocas: \n";
+  M.dump();
+  errs() << "end ExpandAllocas.\n";
+#endif
+
   return true;
 }
 
