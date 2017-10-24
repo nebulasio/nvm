@@ -17,6 +17,8 @@
 
 using namespace llvm;
 
+int roll_dice();
+
 cl::opt<std::string> AssemblyFilePath("assembly", cl::desc("The LLVM IR file"),
                                       cl::Required);
 cl::opt<std::string> AssemblyFileSignature(
@@ -97,12 +99,19 @@ int main(int argc, const char *argv[]) {
     return status;
   }
 
+  void *__sfi_memory_base = calloc(1024 * 1024, sizeof(int32_t));
+
   // TODO, we should use some better log lib, like glog here
   Initialize();
   printf("initialized.\n");
 
   Engine *e = CreateEngine();
   printf("engine created.\n");
+
+  BindSymbol(e, "__sfi_memory_base", __sfi_memory_base);
+
+  // FIXME: @robin delete test function.
+  BindSymbol(e, "roll_dice", (void *)roll_dice);
 
   AddModuleFile(e, AssemblyFilePath.c_str());
   printf("added Module file %s\n", AssemblyFilePath.c_str());
@@ -115,3 +124,5 @@ int main(int argc, const char *argv[]) {
 
   return code_succ;
 }
+
+int roll_dice() { return random(); }

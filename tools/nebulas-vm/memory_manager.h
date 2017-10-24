@@ -31,8 +31,8 @@ public:
   MemoryManager();
   virtual ~MemoryManager();
 
-  void addNamedFunction(const char *Name, void *Address);
-  void addNamedFunction(const std::string &Name, void *Address);
+  void bindSymbol(const char *Name, void *Address);
+  void bindSymbol(const std::string &Name, void *Address);
 
   /// This method returns a RuntimeDyld::SymbolInfo for the specified function
   /// or variable. It is used to resolve symbols during module linking.
@@ -49,5 +49,5 @@ public:
   virtual JITSymbol findSymbol(const std::string &Name);
 
 private:
-  std::unordered_map<std::string, uint64_t> namedFunctionMap;
+  std::unordered_map<std::string, uint64_t> bindingSymbols;
 };

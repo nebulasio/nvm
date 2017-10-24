@@ -83,7 +83,7 @@ Engine *CreateEngine() {
   // Create PassManager.
   legacy::PassManager *passMgr = new legacy::PassManager();
   passMgr->add(createExpandAllocasPass());
-  passMgr->add(createSandboxIndirectCallsPass());
+  // passMgr->add(createSandboxIndirectCallsPass());
   passMgr->add(createSandboxMemoryAccessesPass());
   passMgr->add(createStripTlsPass());
   passMgr->add(createConstantPropagationPass());
@@ -127,6 +127,8 @@ int AddModuleFile(Engine *e, const char *irPath) {
   SetTargetAndDataLayout(module);
 
   passMgr->run(*module);
+
+  module->dump();
 
   if (false) {
     // TODO: @robin, fail when ir file is invalid.
@@ -220,7 +222,7 @@ int RunFunction(Engine *e, const char *funcName, size_t len,
   }
 }
 
-void AddNamedFunction(Engine *e, const char *funcName, void *address) {
+void BindSymbol(Engine *e, const char *funcName, void *address) {
   MemoryManager *mm = static_cast<MemoryManager *>(e->llvm_mem_manager);
-  mm->addNamedFunction(funcName, address);
+  mm->bindSymbol(funcName, address);
 }

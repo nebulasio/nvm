@@ -34,11 +34,15 @@ typedef struct EngineStruct {
 } Engine;
 
 Engine *CreateEngine();
+
 int AddModuleFile(Engine *e, const char *irFile);
+
 void DeleteEngine(Engine *e);
+
 int RunFunction(Engine *e, const char *funcName, size_t len,
                 const uint8_t *data);
-void AddNamedFunction(Engine *e, const char *funcName, void *address);
+
+void BindSymbol(Engine *e, const char *funcName, void *address);
 
 void Initialize();
 

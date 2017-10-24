@@ -34,12 +34,12 @@ JITSymbol MemoryManager::findSymbol(const std::string &Name) {
   }
 #endif
 
-  // printf("Name is %s, NameStr is %s\n", Name.c_str(), NameStr);
+  printf("Name is %s, NameStr is %s\n", Name.c_str(), NameStr);
 
   uint64_t addr = 0;
 
-  auto it = this->namedFunctionMap.find(std::string(NameStr));
-  if (it == this->namedFunctionMap.end()) {
+  auto it = this->bindingSymbols.find(std::string(NameStr));
+  if (it == this->bindingSymbols.end()) {
     addr = getSymbolAddress(Name);
   } else {
     addr = it->second;
@@ -48,10 +48,10 @@ JITSymbol MemoryManager::findSymbol(const std::string &Name) {
   return JITSymbol(addr, JITSymbolFlags::Exported);
 }
 
-void MemoryManager::addNamedFunction(const char *Name, void *Address) {
-  this->addNamedFunction(std::string(Name), Address);
+void MemoryManager::bindSymbol(const char *Name, void *Address) {
+  this->bindSymbol(std::string(Name), Address);
 }
 
-void MemoryManager::addNamedFunction(const std::string &Name, void *Address) {
-  this->namedFunctionMap[Name] = (uint64_t)Address;
+void MemoryManager::bindSymbol(const std::string &Name, void *Address) {
+  this->bindingSymbols[Name] = (uint64_t)Address;
 }
