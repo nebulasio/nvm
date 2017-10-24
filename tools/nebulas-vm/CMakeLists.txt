@@ -28,6 +28,7 @@ set(LLVM_LINK_COMPONENTS
 
 add_llvm_tool(nebulas-vm
   engine.cpp
+  memory_manager.cpp
   nebulas_vm.cpp
   checker/global_variable.cpp
   runtime/nebulas.cpp

@@ -17,7 +17,6 @@
 
 using namespace llvm;
 
-
 cl::opt<std::string> AssemblyFilePath("assembly", cl::desc("The LLVM IR file"),
                                       cl::Required);
 cl::opt<std::string> AssemblyFileSignature(
@@ -34,8 +33,6 @@ cl::opt<ExeLevel> OptimizationLevel(
                clEnumVal(O1, "Enable trivial optimizations"),
                clEnumVal(O2, "Enable default optimizations"),
                clEnumVal(O3, "Enable expensive optimizations")));
-
-void LogError(const char *msg) { printf("Error: %s\n", msg); }
 
 int main(int argc, const char *argv[]) {
   // Print a stack trace if we signal out.
@@ -104,8 +101,11 @@ int main(int argc, const char *argv[]) {
   Initialize();
   printf("initialized.\n");
 
-  Engine *e = CreateEngine(AssemblyFilePath.c_str());
+  Engine *e = CreateEngine();
   printf("engine created.\n");
+
+  AddModuleFile(e, AssemblyFilePath.c_str());
+  printf("added Module file %s\n", AssemblyFilePath.c_str());
 
   int ret = RunFunction(e, "nebulas_main", 0, NULL);
   printf("runFunction return %d\n", ret);
