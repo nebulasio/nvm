@@ -108,7 +108,7 @@ int main(int argc, const char *argv[]) {
   Engine *e = CreateEngine();
   printf("engine created.\n");
 
-  BindSymbol(e, "__sfi_memory_base", __sfi_memory_base);
+  BindSymbol(e, "__sfi_stack", __sfi_memory_base);
 
   // FIXME: @robin delete test function.
   BindSymbol(e, "roll_dice", (void *)roll_dice);

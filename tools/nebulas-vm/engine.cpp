@@ -84,8 +84,8 @@ Engine *CreateEngine() {
   legacy::PassManager *passMgr = new legacy::PassManager();
   passMgr->add(createExpandAllocasPass());
   // passMgr->add(createSandboxIndirectCallsPass());
-  passMgr->add(createSandboxMemoryAccessesPass());
-  passMgr->add(createStripTlsPass());
+  // passMgr->add(createSandboxMemoryAccessesPass());
+  // passMgr->add(createStripTlsPass());
   passMgr->add(createConstantPropagationPass());
   passMgr->add(createInstructionCombiningPass());
   passMgr->add(createPromoteMemoryToRegisterPass());

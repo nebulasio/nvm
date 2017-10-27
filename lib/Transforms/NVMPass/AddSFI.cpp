@@ -64,7 +64,7 @@ static void expandAllocas(Function *Func, Type *IntPtrType, Value *StackPtr) {
       }
       Value *Var = BinaryOperator::Create(
           BinaryOperator::Add, FrameTop,
-          ConstantInt::get(IntPtrType, -FrameOffset), "", Alloca);
+          ConstantInt::get(IntPtrType, FrameOffset), "", Alloca);
       Var = new IntToPtrInst(Var, Alloca->getType(), "", Alloca);
       Var->takeName(Alloca);
       Alloca->replaceAllUsesWith(Var);
@@ -98,21 +98,15 @@ static void expandAllocas(Function *Func, Type *IntPtrType, Value *StackPtr) {
 }
 
 bool ExpandAllocas::runOnModule(Module &M) {
-  Type *IntPtrType = Type::getInt32Ty(M.getContext()); // XXX
-  uint64_t InitialStackPtr = 0x40000000;
-  Value *StackPtr = new GlobalVariable(
-      M, IntPtrType, /*isConstant=*/false, GlobalVariable::InternalLinkage,
-      ConstantInt::get(IntPtrType, InitialStackPtr), "__sfi_stack");
+  Type *IntPtrType = Type::getInt64Ty(M.getContext()); // XXX
+  // uint64_t InitialStackPtr = 0x40000000;
+  Value *StackPtr =
+      new GlobalVariable(M, IntPtrType, /*isConstant=*/false,
+                         GlobalVariable::ExternalLinkage, NULL, "__sfi_stack");
 
   for (Module::iterator Func = M.begin(), E = M.end(); Func != E; ++Func) {
     expandAllocas(&(*Func), IntPtrType, StackPtr);
   }
-
-#ifdef _ENABLE_DEBUG_LOG
-  errs() << "After ExpandAllocas: \n";
-  M.dump();
-  errs() << "end ExpandAllocas.\n";
-#endif
 
   return true;
 }
