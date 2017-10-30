@@ -15,6 +15,8 @@
 #include <string>
 #include <system_error>
 
+#include <sys/mman.h>
+
 using namespace llvm;
 
 int roll_dice();
@@ -99,7 +101,11 @@ int main(int argc, const char *argv[]) {
     return status;
   }
 
-  void *__sfi_memory_base = calloc(1024 * 1024, sizeof(int32_t));
+  //void *__sfi_memory_base = calloc(1024 * 1024, sizeof(int32_t));
+  size_t sandbox_size = ((size_t)1 << 32);
+  void *alloc = mmap(NULL, sandbox_size, PROT_READ | PROT_WRITE,
+                     MAP_ANONYMOUS | MAP_PRIVATE | MAP_NORESERVE, -1, 0);
+  void *__sfi_memory_base = alloc;
 
   // TODO, we should use some better log lib, like glog here
   Initialize();
