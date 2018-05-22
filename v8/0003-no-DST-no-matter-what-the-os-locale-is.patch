@@ -1,0 +1,36 @@
+From 5524215b0a8690d547984d1c6e87500ab6a8c608 Mon Sep 17 00:00:00 2001
+From: silentttttt <silent@nebulas.io>
+Date: Tue, 22 May 2018 16:43:32 +0800
+Subject: [PATCH 3/3] no DST no matter what the os locale is
+
+---
+ src/base/platform/platform-posix.cc | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
+
+diff --git a/src/base/platform/platform-posix.cc b/src/base/platform/platform-posix.cc
+index 450c89b..21f0fec 100644
+--- a/src/base/platform/platform-posix.cc
++++ b/src/base/platform/platform-posix.cc
+@@ -378,12 +378,13 @@ double OS::TimeCurrentMillis() {
+ }
+ 
+ double PosixTimezoneCache::DaylightSavingsOffset(double time) {
+-  if (std::isnan(time)) return std::numeric_limits<double>::quiet_NaN();
+-  time_t tv = static_cast<time_t>(std::floor(time/msPerSecond));
+-  struct tm tm;
+-  struct tm* t = localtime_r(&tv, &tm);
+-  if (NULL == t) return std::numeric_limits<double>::quiet_NaN();
+-  return t->tm_isdst > 0 ? 3600 * msPerSecond : 0;
++  return 0;
++  //if (std::isnan(time)) return std::numeric_limits<double>::quiet_NaN();
++  //time_t tv = static_cast<time_t>(std::floor(time/msPerSecond));
++  //struct tm tm;
++  //struct tm* t = localtime_r(&tv, &tm);
++  //if (NULL == t) return std::numeric_limits<double>::quiet_NaN();
++  //return t->tm_isdst > 0 ? 3600 * msPerSecond : 0;
+ }
+ 
+ 
+-- 
+2.7.4
+

@@ -1,0 +1,69 @@
+From 46daefb5d51829a8e57722b39b5e944b0197bbdb Mon Sep 17 00:00:00 2001
+From: silentttttt <silent@nebulas.io>
+Date: Sun, 6 May 2018 11:30:01 +0000
+Subject: [PATCH 1/3] default timeZone is UTC wherever
+
+---
+ src/base/platform/platform-posix-time.cc | 14 ++++++++------
+ src/intl.cc                              |  2 +-
+ src/objects/intl-objects.cc              |  2 +-
+ 3 files changed, 10 insertions(+), 8 deletions(-)
+
+diff --git a/src/base/platform/platform-posix-time.cc b/src/base/platform/platform-posix-time.cc
+index a960f72..02f02ff 100644
+--- a/src/base/platform/platform-posix-time.cc
++++ b/src/base/platform/platform-posix-time.cc
+@@ -15,16 +15,18 @@ const char* PosixDefaultTimezoneCache::LocalTimezone(double time) {
+   struct tm tm;
+   struct tm* t = localtime_r(&tv, &tm);
+   if (!t || !t->tm_zone) return "";
+-  return t->tm_zone;
++  const char *defaulTimeZone = "UTC";
++  return defaulTimeZone;
+ }
+ 
+ double PosixDefaultTimezoneCache::LocalTimeOffset() {
+-  time_t tv = time(NULL);
+-  struct tm tm;
+-  struct tm* t = localtime_r(&tv, &tm);
++//  time_t tv = time(NULL);
++ // struct tm tm;
++ // struct tm* t = localtime_r(&tv, &tm);
+   // tm_gmtoff includes any daylight savings offset, so subtract it.
+-  return static_cast<double>(t->tm_gmtoff * msPerSecond -
+-                             (t->tm_isdst > 0 ? 3600 * msPerSecond : 0));
++ // return static_cast<double>(t->tm_gmtoff * msPerSecond -
++   //                          (t->tm_isdst > 0 ? 3600 * msPerSecond : 0));
++    return 0;
+ }
+ 
+ }  // namespace base
+diff --git a/src/intl.cc b/src/intl.cc
+index 0d3c507..31a7e35 100644
+--- a/src/intl.cc
++++ b/src/intl.cc
+@@ -368,7 +368,7 @@ const char* ICUTimezoneCache::LocalTimezone(double time_ms) {
+ 
+ icu::TimeZone* ICUTimezoneCache::GetTimeZone() {
+   if (timezone_ == nullptr) {
+-    timezone_ = icu::TimeZone::createDefault();
++    timezone_ = icu::TimeZone::createTimeZone("GMT");
+   }
+   return timezone_;
+ }
+diff --git a/src/objects/intl-objects.cc b/src/objects/intl-objects.cc
+index f889e68..ac27af4 100644
+--- a/src/objects/intl-objects.cc
++++ b/src/objects/intl-objects.cc
+@@ -98,7 +98,7 @@ icu::SimpleDateFormat* CreateICUDateFormat(Isolate* isolate,
+   if (ExtractStringSetting(isolate, options, "timeZone", &timezone)) {
+     tz = icu::TimeZone::createTimeZone(timezone);
+   } else {
+-    tz = icu::TimeZone::createDefault();
++    tz = icu::TimeZone::createTimeZone("GMT");
+   }
+ 
+   // Create a calendar using locale, and apply time zone to it.
+-- 
+2.7.4
+

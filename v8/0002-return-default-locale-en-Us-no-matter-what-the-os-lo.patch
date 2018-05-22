@@ -1,0 +1,40 @@
+From 956ce8e7a828a92711bf6138e5282bb45b4dd0f5 Mon Sep 17 00:00:00 2001
+From: silentttttt <silent@nebulas.io>
+Date: Sun, 6 May 2018 20:37:06 +0800
+Subject: [PATCH 2/3] return default locale en-Us no matter what the os locale
+ is
+
+---
+ src/runtime/runtime-intl.cc | 16 +---------------
+ 1 file changed, 1 insertion(+), 15 deletions(-)
+
+diff --git a/src/runtime/runtime-intl.cc b/src/runtime/runtime-intl.cc
+index 783450c..bd6b33e 100644
+--- a/src/runtime/runtime-intl.cc
++++ b/src/runtime/runtime-intl.cc
+@@ -159,21 +159,7 @@ RUNTIME_FUNCTION(Runtime_GetDefaultICULocale) {
+ 
+   icu::Locale default_locale;
+ 
+-  // Translate ICU's fallback locale to a well-known locale.
+-  if (strcmp(default_locale.getName(), "en_US_POSIX") == 0) {
+-    return *factory->NewStringFromStaticChars("en-US");
+-  }
+-
+-  // Set the locale
+-  char result[ULOC_FULLNAME_CAPACITY];
+-  UErrorCode status = U_ZERO_ERROR;
+-  uloc_toLanguageTag(default_locale.getName(), result, ULOC_FULLNAME_CAPACITY,
+-                     FALSE, &status);
+-  if (U_SUCCESS(status)) {
+-    return *factory->NewStringFromAsciiChecked(result);
+-  }
+-
+-  return *factory->NewStringFromStaticChars("und");
++  return *factory->NewStringFromStaticChars("en-US");
+ }
+ 
+ RUNTIME_FUNCTION(Runtime_IsInitializedIntlObject) {
+-- 
+2.7.4
+
